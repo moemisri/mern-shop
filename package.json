@@ -1,0 +1,29 @@
+{
+  "name": "proshop",
+  "version": "1.0.0",
+  "description": "proshop-server",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node back-end/server.js",
+    "server": "nodemon back-end/server",
+    "client": "npm start --prefix front-end",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "data:import": "node back-end/seeder",
+    "data:destroy": "node back-end/seeder -d"
+  },
+  "author": "MoeMisri",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "colors": "^1.4.0",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-async-handler": "^1.2.0",
+    "mongoose": "^6.5.0"
+  },
+  "devDependencies": {
+    "concurrently": "^7.3.0",
+    "nodemon": "^2.0.19"
+  }
+}
