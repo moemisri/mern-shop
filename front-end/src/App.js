@@ -48,8 +48,14 @@ const App = () => {
               element={<ProductEditScreen />}
             />
             <Route path="/admin/productList" element={<ProductListScreen />} />
+            <Route
+              path="/admin/productlist/:pageNumber"
+              element={<ProductListScreen />}
+              exact
+            />
             <Route path="/admin/orderList" element={<OrderListScreen />} />
-            <Route path="/search/:keyword" element={<HomeScreen />} />
+            <Route path="/search/:keyword" element={<HomeScreen />} exact />
+            <Route path="/page/:pageNumber" element={<HomeScreen />} exact />
             <Route path="/" element={<HomeScreen />} exact />
           </Routes>
         </Container>

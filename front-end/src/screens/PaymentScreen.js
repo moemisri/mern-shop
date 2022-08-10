@@ -7,13 +7,13 @@ import { savePaymentMethod } from "../actions/cartActions";
 import CheckoutSteps from "../components/CheckoutSteps";
 const PaymentScreen = () => {
   const navigate = useNavigate();
-  const { shippingAddress } = useSelector(state => state.cart);
+  const { shippingAddress } = useSelector((state) => state.cart);
   if (!shippingAddress) {
     navigate("/shipping");
   }
   const [paymentMethod, setPaymentMethod] = useState("PayPal");
   const dispatch = useDispatch();
-  const submitHandler = e => {
+  const submitHandler = (e) => {
     e.preventDefault();
     dispatch(savePaymentMethod(paymentMethod));
     navigate("/placeorder");
@@ -33,7 +33,7 @@ const PaymentScreen = () => {
               name="paymentMethod"
               value="PayPal"
               checked
-              onChange={e => setPaymentMethod(e.target.value)}
+              onChange={(e) => setPaymentMethod(e.target.value)}
             ></Form.Check>
             {/* <Form.Check
               type='radio'

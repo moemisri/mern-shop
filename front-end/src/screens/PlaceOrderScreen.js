@@ -1,19 +1,28 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { Button, Col, Row, Image, ListGroup, Card } from "react-bootstrap";
+import { Button, Row, Col, ListGroup, Image, Card } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
 import Message from "../components/Message";
 import CheckoutSteps from "../components/CheckoutSteps";
 import { createOrder } from "../actions/orderActions";
+import { ORDER_CREATE_RESET } from "../constants/orderConstants";
+import { USER_DETAILS_RESET } from "../constants/userConstants";
+
 const PlaceOrderScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const orderCreate = useSelector(state => state.orderCreate);
-  const { order, success, error } = orderCreate;
-  const cart = useSelector(state => state.cart);
-  const addDecimals = num => {
+  const cart = useSelector((state) => state.cart);
+
+  if (!cart.shippingAddress.address) {
+    navigate("/shipping");
+  } else if (!cart.paymentMethod) {
+    navigate("/payment");
+  }
+  //   Calculate prices
+  const addDecimals = (num) => {
     return (Math.round(num * 100) / 100).toFixed(2);
   };
+
   cart.itemsPrice = addDecimals(
     cart.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0)
   );
@@ -25,6 +34,18 @@ const PlaceOrderScreen = () => {
     Number(cart.taxPrice)
   ).toFixed(2);
 
+  const orderCreate = useSelector((state) => state.orderCreate);
+  const { order, success, error } = orderCreate;
+
+  useEffect(() => {
+    if (success) {
+      navigate(`/order/${order._id}`);
+      dispatch({ type: USER_DETAILS_RESET });
+      dispatch({ type: ORDER_CREATE_RESET });
+    }
+    // eslint-disable-next-line
+  }, [navigate, success, order && order._id]);
+
   const placeOrderHandler = () => {
     dispatch(
       createOrder({
@@ -34,18 +55,13 @@ const PlaceOrderScreen = () => {
         itemsPrice: cart.itemsPrice,
         shippingPrice: cart.shippingPrice,
         taxPrice: cart.taxPrice,
-        totalPrice: cart.totalPrice
+        totalPrice: cart.totalPrice,
       })
     );
   };
-  useEffect(() => {
-    if (success) {
-      console.log("here");
-      navigate(`/order/${order._id}`);
-    }
-  }, [success, navigate]);
+
   return (
-    <div>
+    <>
       <CheckoutSteps step1 step2 step3 step4 />
       <Row>
         <Col md={8}>
@@ -54,8 +70,9 @@ const PlaceOrderScreen = () => {
               <h2>Shipping</h2>
               <p>
                 <strong>Address:</strong>
-                {cart.shippingAddress.address}, {cart.shippingAddress.city}
-                {cart.shippingAddress.postalCode},{cart.shippingAddress.country}
+                {cart.shippingAddress.address}, {cart.shippingAddress.city}{" "}
+                {cart.shippingAddress.postalCode},{" "}
+                {cart.shippingAddress.country}
               </p>
             </ListGroup.Item>
 
@@ -71,30 +88,28 @@ const PlaceOrderScreen = () => {
                 <Message>Your cart is empty</Message>
               ) : (
                 <ListGroup variant="flush">
-                  {Array.isArray(cart.cartItems) &&
-                    cart.cartItems.map((item, index) => (
-                      <ListGroup.Item key={index}>
-                        <Row>
-                          <Col md={1}>
-                            <Image
-                              src={item.image}
-                              alt={item.name}
-                              fluid
-                              rounded
-                            />
-                          </Col>
-                          <Col>
-                            <Link to={`/product/${item.product}`}>
-                              {item.name}
-                            </Link>
-                          </Col>
-                          <Col md={4}>
-                            {item.qty} x ${item.price} = $
-                            {item.qty * item.price}
-                          </Col>
-                        </Row>
-                      </ListGroup.Item>
-                    ))}
+                  {cart.cartItems.map((item, index) => (
+                    <ListGroup.Item key={index}>
+                      <Row>
+                        <Col md={1}>
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fluid
+                            rounded
+                          />
+                        </Col>
+                        <Col>
+                          <Link to={`/product/${item.product}`}>
+                            {item.name}
+                          </Link>
+                        </Col>
+                        <Col md={4}>
+                          {item.qty} x ${item.price} = ${item.qty * item.price}
+                        </Col>
+                      </Row>
+                    </ListGroup.Item>
+                  ))}
                 </ListGroup>
               )}
             </ListGroup.Item>
@@ -147,7 +162,7 @@ const PlaceOrderScreen = () => {
           </Card>
         </Col>
       </Row>
-    </div>
+    </>
   );
 };
 

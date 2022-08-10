@@ -5,7 +5,7 @@ import Product from "../models/productModel.js";
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-  const pageSize = 3;
+  const pageSize = 10;
   const page = Number(req.query.pageNumber) || 1;
 
   const keyword = req.query.keyword
@@ -16,14 +16,14 @@ const getProducts = asyncHandler(async (req, res) => {
         },
       }
     : {};
-  const count = await Product.count({ ...keyword });
+
+  const count = await Product.countDocuments({ ...keyword });
   const products = await Product.find({ ...keyword })
     .limit(pageSize)
     .skip(pageSize * (page - 1));
 
-  res.json(products, page, pages: Math.ceil(count/pageSize));
+  res.json({ products, page, pages: Math.ceil(count / pageSize) });
 });
-
 // @desc    Fetch single product
 // @route   GET /api/products/:id
 // @access  Public
@@ -61,7 +61,7 @@ const createProduct = asyncHandler(async (req, res) => {
     name: "Sample name",
     price: 0,
     user: req.user._id,
-    image: "/image/sample.jpg",
+    image: "/home/a/ProShop/uploads/image-1659846036752.jpg",
     brand: "Sample brand",
     category: "Sample category",
     countInStock: 0,
@@ -134,6 +134,13 @@ const createProductReview = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 });
+// @desc    Get top rated products
+// @route   GET /api/products/top
+// @access  Public
+const getTopProducts = asyncHandler(async (req, res) => {
+  const products = await Product.find({}).sort({ rating: -1 }).limit(3);
+  res.json(products);
+});
 export {
   getProducts,
   getProductById,
@@ -141,4 +148,5 @@ export {
   createProduct,
   updateProduct,
   createProductReview,
+  getTopProducts,
 };
